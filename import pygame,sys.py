@@ -5,10 +5,13 @@ from pygame.locals import(
     K_DOWN,
     K_LEFT,
     K_RIGHT,
+    K_w,
+    K_a,
+    K_s,
+    K_d,
     K_ESCAPE,
     KEYDOWN,
     K_SPACE,
-    K_s,
     QUIT,
 )
 pygame.init()
@@ -59,7 +62,7 @@ class Computer():
                     computer_end()    
           
 #player
-class Player():
+class Player1():
     
     def __init__(self):
         self.x = 100
@@ -100,8 +103,52 @@ class Player():
                 self.y=self.y + self.speed
 
         if(self.x,self.y) in treasures:
-            print("you win!")
-            player_end()        
+            print("player1 win!")
+            player1_end()        
+
+class Player2():
+    
+    def __init__(self):
+        self.x = 100
+        self.y = 50
+        self.speed = 25
+
+    
+    def move(self,pressed_key):
+
+        if (pressed_key[K_a]):
+            move_to_x=self.x - self.speed
+            move_to_y=self.y
+            if(move_to_x,move_to_y) not in  walls:
+                self.x =self.x - self.speed
+              
+            
+
+        if (pressed_key[K_d]):
+            move_to_x=self.x + self.speed
+            move_to_y=self.y
+            #print(move_to_x,move_to_y)
+            if(move_to_x,move_to_y) not in  walls:
+                self.x =self.x + self.speed
+            
+
+        if (pressed_key[K_w]):
+            move_to_x=self.x 
+            move_to_y=self.y - self.speed
+            if(move_to_x,move_to_y) not in  walls :
+                self.y =self.y - self.speed
+            
+                
+                    
+        if (pressed_key[K_s]):
+            move_to_x=self.x 
+            move_to_y=self.y + self.speed
+            if(move_to_x,move_to_y) not in  walls:
+                self.y=self.y + self.speed
+
+        if(self.x,self.y) in treasures:
+            print("player2 win!")
+            player2_end()        
 
 
         
@@ -167,8 +214,8 @@ def Board(levels):
 
 #sounds
 pygame.mixer.init()
-#music_bg = pygame.mixer.music.load(("bg.ogg"))
-#pygame.mixer.music.paly(music_bg )                
+music_bg = pygame.mixer.Sound("bg.ogg")
+music_bg.play(-1)                
 
 #timeer
 clock = pygame.time.Clock()
@@ -179,10 +226,16 @@ def draw_text(text,font,text_color,x,y):
     img = font.render(text,True,text_color)
     screen.blit(img,(x,y))              
                 
-def player_end():
+def player1_end():
     global end1
-    player.x=100
-    player.y=50
+    player1.x=100
+    player1.y=50
+    end1 = True
+
+def player2_end():
+    global end1
+    player2.x=100
+    player2.y=50
     end1 = True
 
 def computer_end():
@@ -192,7 +245,8 @@ def computer_end():
     end2 = True
 
 #img_treasure = pygame.image.load("ball.jpg")
-img_player = pygame.image.load("pingi.jpg")
+img_player1 = pygame.image.load("pingi.jpg")
+img_player2 = pygame.image.load("player2.png")
 img_bg = pygame.image.load("texture-surface-dark-blue-11570456514lgg3xugs36.jpg")   
 img_blocks = pygame.image.load("icy_block.png")   
 
@@ -206,7 +260,8 @@ font = pygame.font.SysFont("arialblack",30)
 font2 =  pygame.font.SysFont("arialblack",20)
 TEXT_COLOR = ("black")
 pygame.display.set_caption("MAZE")
-player = Player()
+player1 = Player1()
+player2 = Player2()
 computer=Computer()
 treasure = Treasure()
 blocks(levels)
@@ -237,38 +292,48 @@ while running:
             running == False 
             pygame.quit()
             sys.exit()
-    pressed_key = pygame.key.get_pressed()
-    player.move(pressed_key)
-    computer.move()
-    screen.fill((0,0,0))
-    background(img_bg)
-    Board(levels)
-    pygame.draw.circle(screen,"gold",(treasure.x+12.5,treasure.y+12.5),12.5)
-    pygame.draw.rect(screen,"red",(computer.x,computer.y,25,25))   
-    size = pygame.transform.scale(img_player,(25,25))
-    screen.blit(size,(player.x,player.y))
-    #size2 = pygame.transform.scale(img_treasure,(25,25))
-    #screen.blit(size2,(treasure.x+12.5,treasure.y+12.5))
     if end1 == False and end2 == False:
-        start +=1     
+        pressed_key = pygame.key.get_pressed()
+        player1.move(pressed_key)
+        player2.move(pressed_key)
+        computer.move()
+        screen.fill((0,0,0))
+        background(img_bg)
+        Board(levels)
+        pygame.draw.circle(screen,"gold",(treasure.x+12.5,treasure.y+12.5),12.5)
+        pygame.draw.rect(screen,"red",(computer.x,computer.y,25,25))   
+        size = pygame.transform.scale(img_player1,(25,25))
+        screen.blit(size,(player1.x,player1.y))
+        size = pygame.transform.scale(img_player2,(25,25))
+        screen.blit(size,(player2.x,player2.y))
+        #size2 = pygame.transform.scale(img_treasure,(25,25))
+        #screen.blit(size2,(treasure.x+12.5,treasure.y+12.5))
+        if end1 == False and end2 == False:
+            start +=1     
     
-    if end1==True:
-        time = start
-        end1=True
-        pygame.draw.rect(screen,"green",(0,0,700,700))
-        draw_text(f"you win!",font,TEXT_COLOR,170,260)
-        draw_text(f"total time: {time}ms",font,"blue",170,310)
-        draw_text("press SPACE to restart",font,TEXT_COLOR,170,360)
-    if end2==True:
-        time = start
-        stack = []
-        end2=True
-        pygame.draw.rect(screen,"red",(0,0,700,700))
-        draw_text(f"computer win!",font,TEXT_COLOR,170,260)
-        draw_text(f"total time: {time}ms",font,"blue",170,310)
-        draw_text("press SPACE to restart",font,TEXT_COLOR,170,360)
-    pygame.draw.rect(screen,"gold",(580,10,100,50))
-    draw_text(f'time:{start}' ,font2,TEXT_COLOR,580,20)    
+        if end2==True and end1 == False:
+            time = start
+            computer_end()
+            player1_end()
+            player2_end()
+        
+            pygame.draw.rect(screen,"red",(0,0,700,700))
+            draw_text(f"computer win!",font,TEXT_COLOR,170,260)
+            draw_text(f"total time: {time}ms",font,"blue",170,310)
+            draw_text("press SPACE to restart",font,TEXT_COLOR,170,360)
+        
+        if end1==True and end2 == False:
+            time = start
+            computer_end()
+            player1_end()
+            player2_end()
+            pygame.draw.rect(screen,"green",(0,0,700,700))
+            draw_text(f"you win!",font,TEXT_COLOR,170,260)
+            draw_text(f"total time: {time}ms",font,"blue",170,310)
+            draw_text("press SPACE to restart",font,TEXT_COLOR,170,360)
+        
+        pygame.draw.rect(screen,"gold",(580,10,100,50))
+        draw_text(f'time:{start}' ,font2,TEXT_COLOR,580,20)    
      
     pygame.display.update()
        
